@@ -1,0 +1,20 @@
+#include <stdio.h> 
+#include <unistd.h>
+
+int
+main(int argc, char **argv){
+    int escribir = 0;
+    int loop = 0;
+    
+    while(loop){
+        
+        if(escribir == 0){
+            printf(">%s:~$ ",getlogin());
+            escribir = 1;
+        }else{
+            loop = 1;
+            printf("%s \n","ERROR");
+        }
+    }
+    return 0;
+}
