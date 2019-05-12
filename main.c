@@ -25,30 +25,34 @@ int builtin_cd(int argc, char **argv){
 }
 
 int builtin_dir(int argc, char **argv) {
-    return 0;
+	if(argv[1] == NULL){
+		chdir("/home");
+	}else{
+		chdir(argv[1]);
+	}
+	return 0;
 }
+
 int builtin_exit(int argc, char **argv) {
-    /*int salida =0;
+	int salida =0;
     if(argc > 2){
-        salida = -1;
+        fprintf(stderr, "ERROR. Demasiados parametros\n");
+		return(-1);
     }
     if(argv[1]!=NULL){
 		 salida = *argv[1];
-         int status = *argv[1];
-         exit(status);
+         exit(salida);
 	}else{
 	    exit(0);
-	}
-    
+	}    
     return salida;
-    */
-    return 0;
 }
+//NO funciona bien. Imprime los nombres de los comandos internos (y medio mal)
 int builtin_help(int argc, char **argv) {
     int cmd=0;
     if(argv[0==NULL]){
         for(int i=0; i<CANTCOMANDOS; i++){
-            printf("%s/n", builtin_arr[i]); 
+            printf("%s/n", builtin_arr[i].cmd); 
         }
     
     }else{
@@ -61,43 +65,53 @@ int builtin_help(int argc, char **argv) {
     }
     return 0;
 }
+
 int builtin_history(int argc, char **argv) {
     return 0;
 }
+
 int builtin_status(int argc, char **argv) {
     return 0;
 }
+
 int builtin_getenv(int argc, char **argv) {
     return 0;
 }
+
 int builtin_setenv(int argc, char **argv) {
     return 0;
 }
+
 int builtin_uid(int argc, char **argv) {
-    return 0;
+    struct passwd *infouser = getpwuid(geteuid());
+	printf("Nombre de usuario: %s\n",infouser->pw_name);
+	printf("Id usuario: %d\n",infouser->pw_uid);
+	return 0;
 }
+
 int builtin_pid(int argc, char **argv) {
-    return 0;
+    printf("Id de proceso: %d\n",getpid());	
+    return getpid();
 }
 
 struct builtin_struct builtin_arr[] = {
-    {"cd", builtin_cd, HELP_CD},
-    {"dir", builtin_dir, HELP_DIR},
     {"exit", builtin_exit, HELP_EXIT},
-    {"help", builtin_help, HELP_HELP},
-    {"history", builtin_history, HELP_HISTORY},
-    {"status", builtin_status, HELP_STATUS},
+    {"pid", builtin_pid, HELP_UID},
+    {"uid", builtin_uid, HELP_PID},
     {"getenv", builtin_getenv, HELP_GETENV},
     {"setenv", builtin_setenv, HELP_SETENV},
-    {"uid", builtin_uid, HELP_UID},
-    {"pid", builtin_pid, HELP_PID},
-};
+    {"cd", builtin_cd, HELP_CD},
+    {"status", builtin_status, HELP_STATUS},
+    {"help", builtin_help, HELP_HELP},
+    {"dir", builtin_dir, HELP_DIR},
+    {"history", builtin_history, HELP_HISTORY},
+    };
 
 
 int externo(int argc, char **argv) {
     return 0;
 }
-
+	
 int linea2argv(char *linea, char **argv) {
     int numero_de_palabras = 0;
     enum {IN, OUT};
@@ -134,17 +148,13 @@ int ejecutar(int argc, char **argv){
 
 		switch(cmd){
 		case 0:
-		builtin_exit(argc, argv);	
+			builtin_exit(argc, argv);	
 		break;
 		case 1:
 			builtin_pid(argc, argv);
 		break;
 		case 2:
-			/*struct passwd *infouser = getpwuid();
-			printf("Nombre de usuario: %s\n",infouser->pw_name);
-			printf("Id usuario: ",infouser->pw_uid); //pw_uid es una estructura, no se si esta bien */
-			
-			//Verificar errores, es comentado para poder probar otras cosas
+			builtin_uid(argc, argv);
 		break;
 		case 3:
 			builtin_getenv(argc, argv);
@@ -153,13 +163,19 @@ int ejecutar(int argc, char **argv){
 			builtin_setenv(argc, argv);
 		break;
 		case 5:
-			if(argv[1] == NULL){
-				chdir("/home");
-			}else if(strcmp(argv[1],"-")==0){
-				chdir("..");
-			}else{
-				chdir(argv[1]);
-			}
+			builtin_cd(argc, argv);	
+		break;
+		case 6:
+			builtin_status(argc, argv);	
+		break;
+		case 7:
+			builtin_help(argc, argv);	
+		break;
+		case 8:
+			builtin_dir(argc, argv);	
+		break;
+		case 9:
+			builtin_history(argc, argv);	
 		break;
 
         }
@@ -169,18 +185,19 @@ int ejecutar(int argc, char **argv){
 void
 prompt()
 {
-    fprintf(stderr, "%s> ", "$USER");
+    fprintf(stderr, "%s> ", getenv("USER"));
 }
 
 
-int main(void) {
+void main() {
     char buf[MAX];
-    char *input[MAX];
+    char *argv[MAX];
     int argc =0;
-    exit(0);
 
     while(TRUE){
+	prompt();    
         fgets(buf, MAX, stdin);
-        argc = linea2argv(buf, input);
+        argc = linea2argv(buf, argv);
+	ejecutar(argc, argv);
     }
 }
