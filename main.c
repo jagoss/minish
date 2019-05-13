@@ -50,18 +50,18 @@ int builtin_exit(int argc, char **argv) {
 //NO funciona bien. Imprime los nombres de los comandos internos (y medio mal)
 int builtin_help(int argc, char **argv) {
     int cmd=0;
-    if(argv[0==NULL]){
+    if(argv[1] == NULL){
         for(int i=0; i<CANTCOMANDOS; i++){
-            printf("%s/n", builtin_arr[i].cmd); 
+            printf("%s\n", builtin_arr[i].cmd); 
         }
     
     }else{
         for(int i=0; i<CANTCOMANDOS; i++){
-            if(strcmp(argv[0], builtin_arr[i].cmd)==0){
+            if(strcmp(argv[1], builtin_arr[i].cmd)==0){
                 cmd=i;
             }
         }
-        printf("%s", builtin_arr[cmd].help_txt);
+        printf("%s\n", builtin_arr[cmd].help_txt);
     }
     return 0;
 }
