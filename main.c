@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <unistd.h>
 
 #define CANTCOMANDOS 10
 #define TRUE 1
@@ -17,6 +18,8 @@
 #define HELP_SETENV "setenv var valor - agrega o cambia valor de variable de ambiente"
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
+
+int status = -1;
 
 int builtin_cd(int argc, char **argv){
     
@@ -71,6 +74,12 @@ int builtin_history(int argc, char **argv) {
 }
 
 int builtin_status(int argc, char **argv) {
+	if(status == -1){
+		printf("TODAVIA NO SE HA EJECUTADO NINGUNA FUNCION\n");	
+	}else{
+		printf("Stauts: %d\n", status);
+	}
+	
     return 0;
 }
 
@@ -136,7 +145,7 @@ int linea2argv(char *linea, char **argv) {
 
 int ejecutar(int argc, char **argv){
     
-    int cmd = 0;
+    int cmd = -1;
 
 	if(argc != 0){
     		
@@ -147,35 +156,38 @@ int ejecutar(int argc, char **argv){
 		}
 
 		switch(cmd){
+		case -1:
+			status = externo(argc, argv);
+		break;
 		case 0:
-			builtin_exit(argc, argv);	
+			status = builtin_exit(argc, argv);	
 		break;
 		case 1:
-			builtin_pid(argc, argv);
+			status = builtin_pid(argc, argv);
 		break;
 		case 2:
-			builtin_uid(argc, argv);
+			status = builtin_uid(argc, argv);
 		break;
 		case 3:
-			builtin_getenv(argc, argv);
+			status = builtin_getenv(argc, argv);
 		break;
 		case 4:
-			builtin_setenv(argc, argv);
+			status = builtin_setenv(argc, argv);
 		break;
 		case 5:
-			builtin_cd(argc, argv);	
+			status = builtin_cd(argc, argv);	
 		break;
 		case 6:
-			builtin_status(argc, argv);	
+			status = builtin_status(argc, argv);	
 		break;
 		case 7:
-			builtin_help(argc, argv);	
+			status = builtin_help(argc, argv);	
 		break;
 		case 8:
-			builtin_dir(argc, argv);	
+			status = builtin_dir(argc, argv);	
 		break;
 		case 9:
-			builtin_history(argc, argv);	
+			status = builtin_history(argc, argv);	
 		break;
 
         }
@@ -185,19 +197,23 @@ int ejecutar(int argc, char **argv){
 void
 prompt()
 {
-    fprintf(stderr, "%s> ", getenv("USER"));
+    char cwd[MAX];
+    getcwd(cwd, sizeof(cwd));    
+    fprintf(stderr, "%s:~%s>  ", getenv("USER"), cwd);
 }
 
 
 void main() {
     char buf[MAX];
     char *argv[MAX];
-    int argc =0;
+    int argc = 0;
+    char *estado = "estado";
 
-    while(TRUE){
-	prompt();    
-        fgets(buf, MAX, stdin);
-        argc = linea2argv(buf, argv);
+    while( estado != NULL){
+	
+	prompt();
+       	estado = fgets(buf, MAX, stdin);
+	argc = linea2argv(buf, argv);
 	ejecutar(argc, argv);
     }
 }
