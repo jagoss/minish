@@ -94,14 +94,14 @@ int builtin_status(int argc, char **argv) {
 int builtin_getenv(int argc, char **argv) {
 	int salida = 0;
 	char *env;
-	env=getenv(argv[1]);
-
-	if(env==NULL || strcmp(env, "") == 0){
-		printf("Esta variable no existe en el environment \n");
-		salida = -1;
-	}
-	else{
-		printf("%s = %s\n",argv[1], getenv(argv[1]));
+	for(int i=1; i<argc; i++){
+		if(getenv(argv[i]) ==NULL){
+			printf("Esta variable no existe en el environment \n");
+			salida = -1;
+		}
+		else{
+			printf("%s = %s\n",argv[i], getenv(argv[i]));
+		}
 	}
 	return salida ;
 }
