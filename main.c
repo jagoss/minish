@@ -50,7 +50,7 @@ int builtin_exit(int argc, char **argv) {
 	}    
     return salida;
 }
-//NO funciona bien. Imprime los nombres de los comandos internos (y medio mal)
+
 int builtin_help(int argc, char **argv) {
     int cmd=0;
     if(argv[1] == NULL){
