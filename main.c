@@ -75,7 +75,9 @@ int builtin_help(int argc, char **argv) {
 	}
 
 int builtin_history(int argc, char **argv) {
-    return 0;
+
+	
+	return 0;
 }
 
 int builtin_status(int argc, char **argv) {
@@ -243,6 +245,18 @@ void main() {
     char *argv[MAX];
     int argc = 0;
     char *estado = "estado";
+
+    char* my_home_dir = getenv("HOME");
+    if(my_home_dir == NULL){
+	printf("No se guarda historial porque no hay Home");
+    }else{
+        char hist_filename[MAX];
+    	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
+	FILE *fh = fopen( hist_filename, "a");
+	if(fh == NULL){
+	    printf("No se logro crear el archivo exitosamente");
+	}
+    }
 
     while( estado != NULL){
 	prompt();
