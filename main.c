@@ -18,6 +18,10 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
+
+//FUNCIONES PENDIENTES pid, uid, arreglar prompt de getenv, cd,  status, dir,  history, EXTERNO ,
+
+
 int builtin_cd(int argc, char **argv){
     
      
@@ -47,7 +51,7 @@ int builtin_exit(int argc, char **argv) {
 	}    
     return salida;
 }
-//NO funciona bien. Imprime los nombres de los comandos internos (y medio mal)
+
 int builtin_help(int argc, char **argv) {
     int cmd=0;
     if(argv[1] == NULL){
@@ -64,7 +68,7 @@ int builtin_help(int argc, char **argv) {
         printf("%s\n", builtin_arr[cmd].help_txt);
     }
     return 0;
-}
+	}
 
 int builtin_history(int argc, char **argv) {
     return 0;
@@ -75,10 +79,27 @@ int builtin_status(int argc, char **argv) {
 }
 
 int builtin_getenv(int argc, char **argv) {
-    return 0;
+	char *env;
+	env=getenv(argv[1]);
+	if(env==NULL || strcmp(env, "") == 0){
+		printf("Esta variable no existe en el environment \n");
+	}
+	else{
+		printf("%s = %s",argv[1], getenv(argv[1]));
+	}
+	return 0 ;
 }
 
 int builtin_setenv(int argc, char **argv) {
+	char *env;
+	env=getenv(argv[1]);
+	if(env==NULL){
+		setenv(argv[1], argv[2], 0);
+	}
+	else{
+		setenv(argv[1], argv[2], 1);
+	}
+
     return 0;
 }
 
@@ -193,11 +214,13 @@ void main() {
     char buf[MAX];
     char *argv[MAX];
     int argc =0;
-
+	
     while(TRUE){
-	prompt();    
+	prompt();
         fgets(buf, MAX, stdin);
         argc = linea2argv(buf, argv);
 	ejecutar(argc, argv);
+	
+	
     }
 }
