@@ -7,6 +7,7 @@
 #define CANTCOMANDOS 10
 #define TRUE 1
 #define MAX 1024
+#define SIN_STATUS -20
 
 #define HELP_CD     "cd [-|dir] - cambia de directorio corriente"
 #define HELP_DIR    "dir [str]- muestra archivos en directorio corriente, que tengan 'str'"
@@ -19,11 +20,10 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
-
 //FUNCIONES PENDIENTES pid, uid, arreglar prompt de getenv, cd,  status, dir,  history, EXTERNO ,
 
 
-int status = -1;
+int status = SIN_STATUS;
 
 
 int builtin_cd(int argc, char **argv){
@@ -91,42 +91,60 @@ int builtin_help(int argc, char **argv) {
 	}
 
 int builtin_history(int argc, char **argv) {
-    return 0;
+
+	
+	return 0;
 }
 
 int builtin_status(int argc, char **argv) {
-	if(status == -1){
-		printf("TODAVIA NO SE HA EJECUTADO NINGUNA FUNCION\n");	
+	int salida;
+	if(status == SIN_STATUS){
+		printf("TODAVIA NO SE HA EJECUTADO NINGUNA FUNCION\n");
+		salida=-1;	
 	}else{
 		printf("Stauts: %d\n", status);
+		salida=0;
 	}
 	
-    return 0;
+    return salida;
 }
 
 int builtin_getenv(int argc, char **argv) {
-	char *env;
-	env=getenv(argv[1]);
-	if(env==NULL || strcmp(env, "") == 0){
-		printf("Esta variable no existe en el environment \n");
+	int salida = 0;
+	int error = 0;
+
+	for(int i=1; i<argc && error == 0; i++){
+	
+		if(getenv(argv[i]) ==NULL){
+			printf("Esta variable no existe en el environment \n");
+			salida = -1;
+			error = 1;
+		}
+		else{
+			printf("%s = %s\n",argv[i], getenv(argv[i]));
+		}
 	}
-	else{
-		printf("%s = %s\n",argv[1], getenv(argv[1]));
-	}
-	return 0 ;
+	return salida ;
 }
 
 int builtin_setenv(int argc, char **argv) {
-	char *env;
-	env=getenv(argv[1]);
-	if(env==NULL){
-		setenv(argv[1], argv[2], 0);
+	int salida = -1;
+	if(argc<3){
+		fprintf(stderr,"ERROR!! FALTAN ARGUMENTOS \n");
+	}else if(argc>3){
+		fprintf(stderr, "ERROR!! DEMASIADOS ARGUMENTOS \n");
+	}else{
+		char *env;
+		env=getenv(argv[1]);
+		if(env==NULL){
+			setenv(argv[1], argv[2], 0);
+		}
+		else{
+			setenv(argv[1], argv[2], 1);
+		}
+		salida = 0;
 	}
-	else{
-		setenv(argv[1], argv[2], 1);
-	}
-
-    return 0;
+    return salida;
 }
 
 int builtin_uid(int argc, char **argv) {
@@ -248,6 +266,18 @@ void main() {
     char *argv[MAX];
     int argc = 0;
     char *estado = "estado";
+
+    char* my_home_dir = getenv("HOME");
+    if(my_home_dir == NULL){
+	printf("No se guarda historial porque no hay Home");
+    }else{
+        char hist_filename[MAX];
+    	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
+	FILE *fh = fopen( hist_filename, "a");
+	if(fh == NULL){
+	    printf("No se logro crear el archivo exitosamente");
+	}
+    }
 
     while( estado != NULL){
 	prompt();
