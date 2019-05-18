@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <unistd.h>
+#include "strstr.h"
 
 #define CANTCOMANDOS 10
 #define TRUE 1
@@ -25,7 +26,6 @@
 
 int status = SIN_STATUS;
 
-
 int builtin_cd(int argc, char **argv){
 	int salida;
 
@@ -43,17 +43,27 @@ int builtin_dir(int argc, char **argv) {
 	int salida = 0;
 	DIR *dir = opendir(".");
 	struct dirent *dirent;
+
 	if(argc >2){
 		salida = -1;
 		fprintf(stderr, "ERROR. DEMASIADOS ARGUMENTOS");
-	}else if(argc == 1){
 
-		while((dirent = readdir(dir)) != NULL){
-			printf("%s\n", dirent->d_name);
+	}else if(argc == 1){
+	    while( (dirent = readdir(dir)) != NULL){
+		if(strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0){
+		    printf("%s\t", dirent->d_name);
 		}
+	    }
+
 	}else{
-	//fixme agregar funcion aguja en pajar para encontrar el primer parametro	
+	    while( (dirent =readdir(dir)) != NULL){
+	    	if(my_strstr(dirent->d_name, argv[1]) != NULL && strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0){
+		    printf("%s\t", dirent->d_name);	
+		}
+	    }    	
 	}
+
+	printf("\n");
 	return salida;
 }
 
@@ -174,7 +184,27 @@ struct builtin_struct builtin_arr[] = {
 
 
 int externo(int argc, char **argv) {
-    return 0;
+	int salida = 0;
+	int stat;
+	pid_t child_pid;
+	
+	child_pid = fork();		
+	
+	if(child_pid == 0){
+		execvp(argv[0], argv);
+		fprintf(stderr, "Comando desconocido\n");
+	
+	}else{
+	    pid_t pid = waitpid(child_pid, &stat, 0);
+    	    if(WIFEXITED(stat)){
+	    	salida = WEXITSTATUS(stat);
+	    }else{
+		salida = -1;    
+                perror("Funcion externo");
+	    }
+	}
+
+    return salida;
 }
 	
 int linea2argv(char *linea, char **argv) {
@@ -283,8 +313,6 @@ void main() {
 	prompt();
        	estado = fgets(buf, MAX, stdin);
 	argc = linea2argv(buf, argv);
-	ejecutar(argc, argv);
-	
-	
+	ejecutar(argc, argv);	
     }
 }
