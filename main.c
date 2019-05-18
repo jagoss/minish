@@ -27,22 +27,38 @@ int status = -1;
 
 
 int builtin_cd(int argc, char **argv){
-    
-     
-    return 0;
+	int salida;
+
+    if(argv[1] == NULL){
+        salida = chdir("/home");
+    }else{
+        if( (salida = chdir(argv[1])) != 0)
+			perror("cd failed");
+    } 
+	        
+    return salida;
 }
 
 int builtin_dir(int argc, char **argv) {
-	if(argv[1] == NULL){
-		chdir("/home");
+	int salida = 0;
+	DIR *dir = opendir(".");
+	struct dirent *dirent;
+	if(argc >2){
+		salida = -1;
+		fprintf(stderr, "ERROR. DEMASIADOS ARGUMENTOS");
+	}else if(argc == 1){
+
+		while((dirent = readdir(dir)) != NULL){
+			printf("%s\n", dirent->d_name);
+		}
 	}else{
-		chdir(argv[1]);
+	//fixme agregar funcion aguja en pajar para encontrar el primer parametro	
 	}
-	return 0;
+	return salida;
 }
 
 int builtin_exit(int argc, char **argv) {
-	int salida =0;
+    int salida =0;
     if(argc > 2){
         fprintf(stderr, "ERROR. Demasiados parametros\n");
 		return(-1);
@@ -95,7 +111,7 @@ int builtin_getenv(int argc, char **argv) {
 		printf("Esta variable no existe en el environment \n");
 	}
 	else{
-		printf("%s = %s",argv[1], getenv(argv[1]));
+		printf("%s = %s\n",argv[1], getenv(argv[1]));
 	}
 	return 0 ;
 }
@@ -212,7 +228,9 @@ int ejecutar(int argc, char **argv){
 			status = builtin_history(argc, argv);	
 		break;
 
-        }
+        	}
+	}else{
+		printf("No hay argumentos\n");
 	}
 }
 
