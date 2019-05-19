@@ -20,7 +20,7 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
-//FUNCIONES PENDIENTES pid, uid, arreglar prompt de getenv, cd,  status, dir,  history, EXTERNO ,
+//FUNCIONES PENDIENTES cd,dir,  history, EXTERNO ,
 
 
 int status = SIN_STATUS;
@@ -151,7 +151,7 @@ struct builtin_struct builtin_arr[] = {
     {"help", builtin_help, HELP_HELP},
     {"dir", builtin_dir, HELP_DIR},
     {"history", builtin_history, HELP_HISTORY},
-    };
+};
 
 
 int externo(int argc, char **argv) {
