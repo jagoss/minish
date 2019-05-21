@@ -21,7 +21,7 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
-//FUNCIONES PENDIENTES cd,dir,  history, EXTERNO ,
+//FUNCIONES PENDIENTES ,dir,  history, EXTERNO ,
 
 
 int status = SIN_STATUS;
