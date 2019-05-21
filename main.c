@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <unistd.h>
+#include "strstr.h"
 
 #define CANTCOMANDOS 10
 #define TRUE 1
@@ -20,29 +21,54 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
-//FUNCIONES PENDIENTES pid, uid, arreglar prompt de getenv, cd,  status, dir,  history, EXTERNO ,
+//FUNCIONES PENDIENTES ,dir,  history, EXTERNO ,
 
 
 int status = SIN_STATUS;
 
-
 int builtin_cd(int argc, char **argv){
-    
-     
-    return 0;
+	int salida;
+
+    if(argv[1] == NULL){
+        salida = chdir("/home");
+    }else{
+        if( (salida = chdir(argv[1])) != 0)
+			perror("cd failed");
+    } 
+	        
+    return salida;
 }
 
 int builtin_dir(int argc, char **argv) {
-	if(argv[1] == NULL){
-		chdir("/home");
+	int salida = 0;
+	DIR *dir = opendir(".");
+	struct dirent *dirent;
+
+	if(argc >2){
+		salida = -1;
+		fprintf(stderr, "ERROR. DEMASIADOS ARGUMENTOS");
+
+	}else if(argc == 1){
+	    while( (dirent = readdir(dir)) != NULL){
+		if(strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0){
+		    printf("%s\t", dirent->d_name);
+		}
+	    }
+
 	}else{
-		chdir(argv[1]);
+	    while( (dirent =readdir(dir)) != NULL){
+	    	if(my_strstr(dirent->d_name, argv[1]) != NULL && strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0){
+		    printf("%s\t", dirent->d_name);	
+		}
+	    }    	
 	}
-	return 0;
+
+	printf("\n");
+	return salida;
 }
 
 int builtin_exit(int argc, char **argv) {
-	int salida =0;
+    int salida =0;
     if(argc > 2){
         fprintf(stderr, "ERROR. Demasiados parametros\n");
 		return(-1);
@@ -145,15 +171,18 @@ int builtin_status(int argc, char **argv) {
 
 int builtin_getenv(int argc, char **argv) {
 	int salida = 0;
-	char *env;
-	env=getenv(argv[1]);
+	int error = 0;
 
-	if(env==NULL || strcmp(env, "") == 0){
-		printf("Esta variable no existe en el environment \n");
-		salida = -1;
-	}
-	else{
-		printf("%s = %s\n",argv[1], getenv(argv[1]));
+	for(int i=1; i<argc && error == 0; i++){
+	
+		if(getenv(argv[i]) ==NULL){
+			printf("Esta variable no existe en el environment \n");
+			salida = -1;
+			error = 1;
+		}
+		else{
+			printf("%s = %s\n",argv[i], getenv(argv[i]));
+		}
 	}
 	return salida ;
 }
@@ -201,11 +230,31 @@ struct builtin_struct builtin_arr[] = {
     {"help", builtin_help, HELP_HELP},
     {"dir", builtin_dir, HELP_DIR},
     {"history", builtin_history, HELP_HISTORY},
-    };
+};
 
 
 int externo(int argc, char **argv) {
-    return 0;
+	int salida = 0;
+	int stat;
+	pid_t child_pid;
+	
+	child_pid = fork();		
+	
+	if(child_pid == 0){
+		execvp(argv[0], argv);
+		fprintf(stderr, "Comando desconocido\n");
+	
+	}else{
+	    pid_t pid = waitpid(child_pid, &stat, 0);
+    	    if(WIFEXITED(stat)){
+	    	salida = WEXITSTATUS(stat);
+	    }else{
+		salida = -1;    
+                perror("Funcion externo");
+	    }
+	}
+
+    return salida;
 }
 	
 int linea2argv(char *linea, char **argv) {
@@ -277,7 +326,9 @@ int ejecutar(int argc, char **argv){
 			status = builtin_history(argc, argv);	
 		break;
 
-        }
+        	}
+	}else{
+		printf("No hay argumentos\n");
 	}
 }
 
@@ -315,8 +366,6 @@ void main() {
 	fprintf(fh, "%s", buf);
 	fflush(fh);
 	argc = linea2argv(buf, argv);
-	ejecutar(argc, argv);
-	
-	
+	ejecutar(argc, argv);	
     }
 }
