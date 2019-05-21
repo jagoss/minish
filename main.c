@@ -26,146 +26,146 @@
 
 int status = SIN_STATUS;
 
-int builtin_cd(int argc, char **argv){
-	int salida;
+int builtin_cd(int argc, char **argv) {
+    int salida;
 
-    if(argv[1] == NULL){
+    if(argv[1] == NULL) {
         salida = chdir("/home");
-    }else{
+    } else {
         if( (salida = chdir(argv[1])) != 0)
-			perror("cd failed");
-    } 
-	        
+            perror("cd failed");
+    }
+
     return salida;
 }
 
 int builtin_dir(int argc, char **argv) {
-	int salida = 0;
-	DIR *dir = opendir(".");
-	struct dirent *dirent;
+    int salida = 0;
+    DIR *dir = opendir(".");
+    struct dirent *dirent;
 
-	if(argc >2){
-		salida = -1;
-		fprintf(stderr, "ERROR. DEMASIADOS ARGUMENTOS");
+    if(argc >2) {
+        salida = -1;
+        fprintf(stderr, "ERROR. DEMASIADOS ARGUMENTOS");
 
-	}else if(argc == 1){
-	    while( (dirent = readdir(dir)) != NULL){
-		if(strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0){
-		    printf("%s\t", dirent->d_name);
-		}
-	    }
+    } else if(argc == 1) {
+        while( (dirent = readdir(dir)) != NULL) {
+            if(strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0) {
+                printf("%s\t", dirent->d_name);
+            }
+        }
 
-	}else{
-	    while( (dirent =readdir(dir)) != NULL){
-	    	if(my_strstr(dirent->d_name, argv[1]) != NULL && strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0){
-		    printf("%s\t", dirent->d_name);	
-		}
-	    }    	
-	}
+    } else {
+        while( (dirent =readdir(dir)) != NULL) {
+            if(my_strstr(dirent->d_name, argv[1]) != NULL && strcmp(dirent->d_name, ".") != 0 && strcmp(dirent->d_name, "..") != 0) {
+                printf("%s\t", dirent->d_name);
+            }
+        }
+    }
 
-	printf("\n");
-	return salida;
+    printf("\n");
+    return salida;
 }
 
 int builtin_exit(int argc, char **argv) {
     int salida =0;
-    if(argc > 2){
+    if(argc > 2) {
         fprintf(stderr, "ERROR. Demasiados parametros\n");
-		return(-1);
+        return(-1);
     }
-    if(argv[1]!=NULL){
-		 salida = *argv[1];
-         exit(salida);
-	}else{
-	    exit(0);
-	}    
+    if(argv[1]!=NULL) {
+        salida = *argv[1];
+        exit(salida);
+    } else {
+        exit(0);
+    }
     return salida;
 }
 
 int builtin_help(int argc, char **argv) {
     int cmd=0;
-    if(argv[1] == NULL){
-        for(int i=0; i<CANTCOMANDOS; i++){
-            printf("%s\n", builtin_arr[i].cmd); 
+    if(argv[1] == NULL) {
+        for(int i=0; i<CANTCOMANDOS; i++) {
+            printf("%s\n", builtin_arr[i].cmd);
         }
-    
-    }else{
-        for(int i=0; i<CANTCOMANDOS; i++){
-            if(strcmp(argv[1], builtin_arr[i].cmd)==0){
+
+    } else {
+        for(int i=0; i<CANTCOMANDOS; i++) {
+            if(strcmp(argv[1], builtin_arr[i].cmd)==0) {
                 cmd=i;
             }
         }
         printf("%s\n", builtin_arr[cmd].help_txt);
     }
     return 0;
-	}
+}
 
 int builtin_history(int argc, char **argv) {
 
-	
-	return 0;
+
+    return 0;
 }
 
 int builtin_status(int argc, char **argv) {
-	int salida;
-	if(status == SIN_STATUS){
-		printf("TODAVIA NO SE HA EJECUTADO NINGUNA FUNCION\n");
-		salida=-1;	
-	}else{
-		printf("Stauts: %d\n", status);
-		salida=0;
-	}
-	
+    int salida;
+    if(status == SIN_STATUS) {
+        printf("TODAVIA NO SE HA EJECUTADO NINGUNA FUNCION\n");
+        salida=-1;
+    } else {
+        printf("Stauts: %d\n", status);
+        salida=0;
+    }
+
     return salida;
 }
 
 int builtin_getenv(int argc, char **argv) {
-	int salida = 0;
-	int error = 0;
+    int salida = 0;
+    int error = 0;
 
-	for(int i=1; i<argc && error == 0; i++){
-	
-		if(getenv(argv[i]) ==NULL){
-			printf("Esta variable no existe en el environment \n");
-			salida = -1;
-			error = 1;
-		}
-		else{
-			printf("%s = %s\n",argv[i], getenv(argv[i]));
-		}
-	}
-	return salida ;
+    for(int i=1; i<argc && error == 0; i++) {
+
+        if(getenv(argv[i]) ==NULL) {
+            printf("Esta variable no existe en el environment \n");
+            salida = -1;
+            error = 1;
+        }
+        else {
+            printf("%s = %s\n",argv[i], getenv(argv[i]));
+        }
+    }
+    return salida ;
 }
 
 int builtin_setenv(int argc, char **argv) {
-	int salida = -1;
-	if(argc<3){
-		fprintf(stderr,"ERROR!! FALTAN ARGUMENTOS \n");
-	}else if(argc>3){
-		fprintf(stderr, "ERROR!! DEMASIADOS ARGUMENTOS \n");
-	}else{
-		char *env;
-		env=getenv(argv[1]);
-		if(env==NULL){
-			setenv(argv[1], argv[2], 0);
-		}
-		else{
-			setenv(argv[1], argv[2], 1);
-		}
-		salida = 0;
-	}
+    int salida = -1;
+    if(argc<3) {
+        fprintf(stderr,"ERROR!! FALTAN ARGUMENTOS \n");
+    } else if(argc>3) {
+        fprintf(stderr, "ERROR!! DEMASIADOS ARGUMENTOS \n");
+    } else {
+        char *env;
+        env=getenv(argv[1]);
+        if(env==NULL) {
+            setenv(argv[1], argv[2], 0);
+        }
+        else {
+            setenv(argv[1], argv[2], 1);
+        }
+        salida = 0;
+    }
     return salida;
 }
 
 int builtin_uid(int argc, char **argv) {
     struct passwd *infouser = getpwuid(geteuid());
-	printf("Nombre de usuario: %s\n",infouser->pw_name);
-	printf("Id usuario: %d\n",infouser->pw_uid);
-	return 0;
+    printf("Nombre de usuario: %s\n",infouser->pw_name);
+    printf("Id usuario: %d\n",infouser->pw_uid);
+    return 0;
 }
 
 int builtin_pid(int argc, char **argv) {
-    printf("Id de proceso: %d\n",getpid());	
+    printf("Id de proceso: %d\n",getpid());
     return getpid();
 }
 
@@ -184,29 +184,29 @@ struct builtin_struct builtin_arr[] = {
 
 
 int externo(int argc, char **argv) {
-	int salida = 0;
-	int stat;
-	pid_t child_pid;
-	
-	child_pid = fork();		
-	
-	if(child_pid == 0){
-		execvp(argv[0], argv);
-		fprintf(stderr, "Comando desconocido\n");
-	
-	}else{
-	    pid_t pid = waitpid(child_pid, &stat, 0);
-    	    if(WIFEXITED(stat)){
-	    	salida = WEXITSTATUS(stat);
-	    }else{
-		salida = -1;    
-                perror("Funcion externo");
-	    }
-	}
+    int salida = 0;
+    int stat;
+    pid_t child_pid;
+
+    child_pid = fork();
+
+    if(child_pid == 0) {
+        execvp(argv[0], argv);
+        fprintf(stderr, "Comando desconocido\n");
+
+    } else {
+        pid_t pid = waitpid(child_pid, &stat, 0);
+        if(WIFEXITED(stat)) {
+            salida = WEXITSTATUS(stat);
+        } else {
+            salida = -1;
+            perror("Funcion externo");
+        }
+    }
 
     return salida;
 }
-	
+
 int linea2argv(char *linea, char **argv) {
     int numero_de_palabras = 0;
     enum {IN, OUT};
@@ -229,64 +229,64 @@ int linea2argv(char *linea, char **argv) {
     return numero_de_palabras;
 }
 
-int ejecutar(int argc, char **argv){
-    
+int ejecutar(int argc, char **argv) {
+
     int cmd = -1;
 
-	if(argc != 0){
-    		
-		for(int i = 0;i < CANTCOMANDOS; i++){
-			if(strcmp(argv[0], builtin_arr[i].cmd) == 0){
-				cmd = i;
-			}
-		}
+    if(argc != 0) {
 
-		switch(cmd){
-		case -1:
-			status = externo(argc, argv);
-		break;
-		case 0:
-			status = builtin_exit(argc, argv);	
-		break;
-		case 1:
-			status = builtin_pid(argc, argv);
-		break;
-		case 2:
-			status = builtin_uid(argc, argv);
-		break;
-		case 3:
-			status = builtin_getenv(argc, argv);
-		break;
-		case 4:
-			status = builtin_setenv(argc, argv);
-		break;
-		case 5:
-			status = builtin_cd(argc, argv);	
-		break;
-		case 6:
-			status = builtin_status(argc, argv);	
-		break;
-		case 7:
-			status = builtin_help(argc, argv);	
-		break;
-		case 8:
-			status = builtin_dir(argc, argv);	
-		break;
-		case 9:
-			status = builtin_history(argc, argv);	
-		break;
+        for(int i = 0; i < CANTCOMANDOS; i++) {
+            if(strcmp(argv[0], builtin_arr[i].cmd) == 0) {
+                cmd = i;
+            }
+        }
 
-        	}
-	}else{
-		printf("No hay argumentos\n");
-	}
+        switch(cmd) {
+        case -1:
+            status = externo(argc, argv);
+            break;
+        case 0:
+            status = builtin_exit(argc, argv);
+            break;
+        case 1:
+            status = builtin_pid(argc, argv);
+            break;
+        case 2:
+            status = builtin_uid(argc, argv);
+            break;
+        case 3:
+            status = builtin_getenv(argc, argv);
+            break;
+        case 4:
+            status = builtin_setenv(argc, argv);
+            break;
+        case 5:
+            status = builtin_cd(argc, argv);
+            break;
+        case 6:
+            status = builtin_status(argc, argv);
+            break;
+        case 7:
+            status = builtin_help(argc, argv);
+            break;
+        case 8:
+            status = builtin_dir(argc, argv);
+            break;
+        case 9:
+            status = builtin_history(argc, argv);
+            break;
+
+        }
+    } else {
+        printf("No hay argumentos\n");
+    }
 }
 
 void
 prompt()
 {
     char cwd[MAX];
-    getcwd(cwd, sizeof(cwd));    
+    getcwd(cwd, sizeof(cwd));
     fprintf(stderr, "%s:~%s>  ", getenv("USER"), cwd);
 }
 
@@ -298,21 +298,21 @@ void main() {
     char *estado = "estado";
 
     char* my_home_dir = getenv("HOME");
-    if(my_home_dir == NULL){
-	printf("No se guarda historial porque no hay Home");
-    }else{
+    if(my_home_dir == NULL) {
+        printf("No se guarda historial porque no hay Home");
+    } else {
         char hist_filename[MAX];
-    	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
-	FILE *fh = fopen( hist_filename, "a");
-	if(fh == NULL){
-	    printf("No se logro crear el archivo exitosamente");
-	}
+        snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);
+        FILE *fh = fopen( hist_filename, "a");
+        if(fh == NULL) {
+            printf("No se logro crear el archivo exitosamente");
+        }
     }
 
-    while( estado != NULL){
-	prompt();
-       	estado = fgets(buf, MAX, stdin);
-	argc = linea2argv(buf, argv);
-	ejecutar(argc, argv);	
+    while( estado != NULL) {
+        prompt();
+        estado = fgets(buf, MAX, stdin);
+        argc = linea2argv(buf, argv);
+        ejecutar(argc, argv);
     }
 }
