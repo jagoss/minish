@@ -27,15 +27,7 @@
 int status = SIN_STATUS;
 char last_dir[MAX];
 
-<<<<<<< HEAD
 int builtin_cd(int argc, char **argv) {
-    int salida;
-
-    if(argv[1] == NULL) {
-        salida = chdir("/home");
-    } else {
-        =======
-        int builtin_cd(int argc, char **argv) {
             int salida;
             char temp[MAX];
 
@@ -53,7 +45,6 @@ int builtin_cd(int argc, char **argv) {
             } else {
 
                 getcwd(last_dir,sizeof(last_dir));
-                >>>>>>> fc9ce348d205fbe0943aabc382be2a39122288f3
                 if( (salida = chdir(argv[1])) != 0)
                     perror("cd failed");
             }
@@ -123,13 +114,8 @@ int builtin_cd(int argc, char **argv) {
         }
 
         int builtin_history(int argc, char **argv) {
-            <<<<<<< HEAD
 
-
-            return 0;
-            =======
-
-                FILE *fh;
+            FILE *fh;
             char* my_home_dir = getenv("HOME");
             char* c;
             char* array = malloc(MAX);
@@ -181,7 +167,6 @@ int builtin_cd(int argc, char **argv) {
                 }
             }
             return 0;
-            >>>>>>> fc9ce348d205fbe0943aabc382be2a39122288f3
         }
 
         int builtin_status(int argc, char **argv) {
