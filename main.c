@@ -114,8 +114,58 @@ int builtin_help(int argc, char **argv) {
 	}
 
 int builtin_history(int argc, char **argv) {
+    
+    FILE *fh;
+    char* my_home_dir = getenv("HOME");
+    char* c;
+    char* array = malloc(MAX);
+    int i = 0;
+    int n = 10; 
+    int llenado = 0;
 
-	
+    if (argc == 2){
+	n = atoi(argv[1]);
+    }
+    char* comandos[n];
+		    
+    if(my_home_dir == NULL){
+	printf("No se guarda historial porque no hay Home \n");
+	return 0;
+    }else{
+        char hist_filename[MAX];
+    	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
+	fh = fopen(  hist_filename, "r");
+	if (fh == NULL){
+	    printf("ERROR ARCHIVO VACIO\n");
+	    return 0;
+	}
+	while((fgets(array, MAX, fh)) != NULL){
+	    comandos[i] = strdup(array);
+	    i++;
+	    if(i > n){
+	        i = 0;
+		llenado = 1;
+	    }
+	}
+	int j = i+1;
+	if(llenado == 0){
+	    j = 0;
+	    while(j<=i-1){
+	        printf("%s\n", comandos[j]);
+    	        j++;	
+	    }
+	}else if (llenado == 1){
+	    while (j!= i){	
+	        if(j >= n){
+	    	    j = 0; 
+ 	            printf("%s\n", comandos[j]);
+	        }else {
+	            printf("%s\n", comandos[j]);
+    	       	    j++;
+		}
+	    }
+	}
+    }
 	return 0;
 }
 
@@ -309,22 +359,25 @@ void main() {
     char *argv[MAX];
     int argc = 0;
     char *estado = "estado";
-
     char* my_home_dir = getenv("HOME");
+    FILE *fh;
+
     if(my_home_dir == NULL){
-	printf("No se guarda historial porque no hay Home");
+	printf("No se guarda historial porque no hay Home \n");
     }else{
         char hist_filename[MAX];
     	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
-	FILE *fh = fopen( hist_filename, "a");
+	fh = fopen( hist_filename, "a");
 	if(fh == NULL){
-	    printf("No se logro crear el archivo exitosamente");
+	    printf("No se logro crear el archivo exitosamente \n");
 	}
     }
 
     while( estado != NULL){
 	prompt();
        	estado = fgets(buf, MAX, stdin);
+	fprintf(fh, "%s", buf);
+	fflush(fh);
 	argc = linea2argv(buf, argv);
 	ejecutar(argc, argv);	
     }
