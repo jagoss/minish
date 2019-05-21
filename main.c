@@ -21,17 +21,39 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
-//FUNCIONES PENDIENTES cd,dir,  history, EXTERNO ,
+//FUNCIONES PENDIENTES ,dir,  history, EXTERNO ,
 
 
 int status = SIN_STATUS;
+char last_dir[MAX];
 
+<<<<<<< HEAD
 int builtin_cd(int argc, char **argv) {
     int salida;
 
     if(argv[1] == NULL) {
         salida = chdir("/home");
     } else {
+=======
+int builtin_cd(int argc, char **argv){
+    int salida;
+    char temp[MAX];
+    
+    if(argv[1] == NULL){
+
+	getcwd(last_dir, sizeof(last_dir));
+        salida = chdir("/home");
+    
+    }else if(strcmp(argv[1],"-") == 0){
+        
+        getcwd(temp, sizeof(temp));
+        salida = chdir(last_dir);
+        strcpy(last_dir, temp);
+    
+    }else{
+
+        getcwd(last_dir,sizeof(last_dir));
+>>>>>>> fc9ce348d205fbe0943aabc382be2a39122288f3
         if( (salida = chdir(argv[1])) != 0)
             perror("cd failed");
     }
@@ -101,9 +123,65 @@ int builtin_help(int argc, char **argv) {
 }
 
 int builtin_history(int argc, char **argv) {
+<<<<<<< HEAD
 
 
     return 0;
+=======
+    
+    FILE *fh;
+    char* my_home_dir = getenv("HOME");
+    char* c;
+    char* array = malloc(MAX);
+    int i = 0;
+    int n = 10; 
+    int llenado = 0;
+
+    if (argc == 2){
+	n = atoi(argv[1]);
+    }
+    char* comandos[n];
+		    
+    if(my_home_dir == NULL){
+	printf("No se guarda historial porque no hay Home \n");
+	return 0;
+    }else{
+        char hist_filename[MAX];
+    	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
+	fh = fopen(  hist_filename, "r");
+	if (fh == NULL){
+	    printf("ERROR ARCHIVO VACIO\n");
+	    return 0;
+	}
+	while((fgets(array, MAX, fh)) != NULL){
+	    comandos[i] = strdup(array);
+	    i++;
+	    if(i > n){
+	        i = 0;
+		llenado = 1;
+	    }
+	}
+	int j = i+1;
+	if(llenado == 0){
+	    j = 0;
+	    while(j<=i-1){
+	        printf("%s\n", comandos[j]);
+    	        j++;	
+	    }
+	}else if (llenado == 1){
+	    while (j!= i){	
+	        if(j >= n){
+	    	    j = 0; 
+ 	            printf("%s\n", comandos[j]);
+	        }else {
+	            printf("%s\n", comandos[j]);
+    	       	    j++;
+		}
+	    }
+	}
+    }
+	return 0;
+>>>>>>> fc9ce348d205fbe0943aabc382be2a39122288f3
 }
 
 int builtin_status(int argc, char **argv) {
@@ -120,21 +198,22 @@ int builtin_status(int argc, char **argv) {
 }
 
 int builtin_getenv(int argc, char **argv) {
-    int salida = 0;
-    int error = 0;
+	int salida = 0;
+	int error = 0;
 
-    for(int i=1; i<argc && error == 0; i++) {
+	for(int i=1; i<argc; i++){
+	
+		if(getenv(argv[i]) ==NULL){
+			printf("Esta variable no existe en el environment: %s \n", argv[i]);
+			salida = -1;
+			error = 1;
+		}
+		else{
+			printf("%s = %s\n",argv[i], getenv(argv[i]));
+		}
+	}
+	return salida ;
 
-        if(getenv(argv[i]) ==NULL) {
-            printf("Esta variable no existe en el environment \n");
-            salida = -1;
-            error = 1;
-        }
-        else {
-            printf("%s = %s\n",argv[i], getenv(argv[i]));
-        }
-    }
-    return salida ;
 }
 
 int builtin_setenv(int argc, char **argv) {
@@ -296,23 +375,26 @@ void main() {
     char *argv[MAX];
     int argc = 0;
     char *estado = "estado";
-
     char* my_home_dir = getenv("HOME");
-    if(my_home_dir == NULL) {
-        printf("No se guarda historial porque no hay Home");
-    } else {
+    FILE *fh;
+
+    if(my_home_dir == NULL){
+	printf("No se guarda historial porque no hay Home \n");
+    }else{
         char hist_filename[MAX];
-        snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);
-        FILE *fh = fopen( hist_filename, "a");
-        if(fh == NULL) {
-            printf("No se logro crear el archivo exitosamente");
-        }
+    	snprintf(hist_filename, MAX, "%s/.minish_history", my_home_dir);    
+	fh = fopen( hist_filename, "a");
+	if(fh == NULL){
+	    printf("No se logro crear el archivo exitosamente \n");
+	}
     }
 
-    while( estado != NULL) {
-        prompt();
-        estado = fgets(buf, MAX, stdin);
-        argc = linea2argv(buf, argv);
-        ejecutar(argc, argv);
+    while( estado != NULL){
+	prompt();
+       	estado = fgets(buf, MAX, stdin);
+	fprintf(fh, "%s", buf);
+	fflush(fh);
+	argc = linea2argv(buf, argv);
+	ejecutar(argc, argv);	
     }
 }
