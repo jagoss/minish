@@ -186,10 +186,10 @@ int builtin_getenv(int argc, char **argv) {
 	int salida = 0;
 	int error = 0;
 
-	for(int i=1; i<argc && error == 0; i++){
+	for(int i=1; i<argc; i++){
 	
 		if(getenv(argv[i]) ==NULL){
-			printf("Esta variable no existe en el environment \n");
+			printf("Esta variable no existe en el environment: %s \n", argv[i]);
 			salida = -1;
 			error = 1;
 		}
