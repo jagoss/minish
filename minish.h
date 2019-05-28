@@ -12,12 +12,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
 #define MAXBUF	512         // tamaño máximo de la línea de entrada
 #define HISTORY_FILE	".minish_history"   // nombre del archivo que almacena historia de comandos
 
-extern int globalstatret;	// guarda status del ultimo comando - deberá definirse en el main
+#define SIN_STATUS -20
+#define CANTCOMANDOS 10
+
 extern int linea2argv (char *linea, char **argv); // genera estructura argv con las palabras de linea
+extern int status;
+extern int globalstatret;	// guarda status del ultimo comando - deberá definirse en el main
 extern int builtin_exit (int argc, char ** argv);
 extern int builtin_help (int argc, char ** argv);
 extern int builtin_history (int argc, char ** argv);
@@ -29,6 +32,7 @@ extern int builtin_setenv (int argc, char ** argv);
 extern int builtin_pid (int argc, char ** argv);
 extern int builtin_uid (int argc, char ** argv);
 extern int externo (int argc, char ** argv);
+extern char * my_strstr(char *pajar, char *aguja);
 
 struct builtin_struct {         // struct con información de los builtins
     char *cmd;                  // nombre del comando builtin
