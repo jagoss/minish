@@ -27,14 +27,6 @@
 int status = SIN_STATUS;
 char last_dir[MAX];
 
-<<<<<<< HEAD
-int builtin_cd(int argc, char **argv) {
-    int salida;
-
-    if(argv[1] == NULL) {
-        salida = chdir("/home");
-    } else {
-        =======
         int builtin_cd(int argc, char **argv) {
             int salida;
             char temp[MAX];
@@ -53,7 +45,6 @@ int builtin_cd(int argc, char **argv) {
             } else {
 
                 getcwd(last_dir,sizeof(last_dir));
-                >>>>>>> fc9ce348d205fbe0943aabc382be2a39122288f3
                 if( (salida = chdir(argv[1])) != 0)
                     perror("cd failed");
             }
@@ -123,19 +114,13 @@ int builtin_cd(int argc, char **argv) {
         }
 
         int builtin_history(int argc, char **argv) {
-            <<<<<<< HEAD
-
-
-            return 0;
-            =======
-
-                FILE *fh;
+          
+            FILE *fh;
             char* my_home_dir = getenv("HOME");
             char* c;
             char* array = malloc(MAX);
             int i = 0;
             int n = 10;
-            int llenado = 0;
 
             if (argc == 2) {
                 n = atoi(argv[1]);
@@ -153,36 +138,28 @@ int builtin_cd(int argc, char **argv) {
                     printf("ERROR ARCHIVO VACIO\n");
                     return 0;
                 }
+		int contador = 0;
                 while((fgets(array, MAX, fh)) != NULL) {
                     comandos[i] = strdup(array);
-                    i++;
-                    if(i > n) {
-                        i = 0;
-                        llenado = 1;
-                    }
-                }
-                int j = i+1;
-                if(llenado == 0) {
-                    j = 0;
-                    while(j<=i-1) {
-                        printf("%s\n", comandos[j]);
-                        j++;
-                    }
-                } else if (llenado == 1) {
-                    while (j!= i) {
-                        if(j >= n) {
-                            j = 0;
-                            printf("%s\n", comandos[j]);
-                        } else {
-                            printf("%s\n", comandos[j]);
-                            j++;
-                        }
-                    }
-                }
+                    i=(i+1)%n;
+		    contador++;
+		}
+		int b;
+		int lineas;
+		if(contador<n){
+		    lineas = contador;
+		    i=0;
+		}else{
+		    lineas = n;
+		}
+		printf("\n");
+		for(int j = 0; j<lineas; j++){
+		    b = (i+j)%n;
+		    printf("%s\n", comandos[b]);
+		}
             }
             return 0;
-            >>>>>>> fc9ce348d205fbe0943aabc382be2a39122288f3
-        }
+       }
 
         int builtin_status(int argc, char **argv) {
             int salida;
