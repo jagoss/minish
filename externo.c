@@ -10,6 +10,7 @@ int externo(int argc, char **argv) {
     if(child_pid == 0) {
         execvp(argv[0], argv);
         fprintf(stderr, "Comando desconocido\n");
+	exit(1);
 
     } else {
         pid_t pid = waitpid(child_pid, &stat, 0);

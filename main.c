@@ -19,7 +19,6 @@
 #define HELP_STATUS "status - muestra status de retorno de ultimo comando ejecutado"
 #define HELP_UID    "uid - muestra nombre y número de usuario dueño del minish"
 
-//FUNCIONES PENDIENTES ,dir,  history, EXTERNO ,
 
 int status = SIN_STATUS;
 
@@ -94,6 +93,11 @@ void prompt()
     fprintf(stderr, "%s:~%s>  ", getenv("USER"), cwd);
 }
 
+void intHandler(int sig){
+	printf("\n");
+}
+
+
 void main() {
     char buf[MAX];
     static char *argv[MAX];
@@ -112,10 +116,15 @@ void main() {
             printf("No se logro crear el archivo exitosamente \n");
         }
     }
-
-    while( estado != NULL) {
+	signal(SIGINT, intHandler);
+    while(1) {
         prompt();
-        estado = fgets(buf, MAX, stdin);
+        if(fgets(buf, MAX, stdin)==NULL){
+		int numero=errno;
+		if(numero==EINTR){
+			continue;
+		}
+	}
         fprintf(fh, "%s", buf);
         fflush(fh);
         argc = linea2argv(buf, argv);
